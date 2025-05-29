@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 
 from models.user import User  # Aynı şekilde kullanılabilir
+from main.register_window import RegisterWindow  # ✅ YENİ: RegisterWindow import edildi
 
 class LoginWindow(tk.Tk):
     def __init__(self):
@@ -34,6 +35,10 @@ class LoginWindow(tk.Tk):
         login_button = ttk.Button(form_frame, text="Login", command=self.handle_login)
         login_button.pack(pady=20)
 
+        # ✅ YENİ: Register butonu
+        register_button = ttk.Button(form_frame, text="Don't have an account? Register", command=self.open_register_window)
+        register_button.pack(pady=10)
+
         # Sağ: Görsel alanı
         image_frame = tk.Frame(main_frame, bg="white")
         image_frame.place(relx=0.5, rely=0, relwidth=0.5, relheight=1)
@@ -60,6 +65,10 @@ class LoginWindow(tk.Tk):
             messagebox.showinfo("Login Result", f"✅ Hoş geldin, {user.fullName}!")
         else:
             messagebox.showerror("Login Result", "❌ Giriş başarısız. E-posta veya şifre hatalı.")
+
+    # ✅ YENİ: Register penceresini açar
+    def open_register_window(self):
+        RegisterWindow(self)
 
 
 if __name__ == "__main__":
