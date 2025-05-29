@@ -19,3 +19,31 @@ class User:
         conn.commit() #degisiklikleri commit ettik
         self.id = cursor.lastrowid #auto_increment tanimladigimiz icin last_id + 1 yapiyoz
         conn.close()  #baglantiyi kapiyoruz
+
+    @staticmethod
+    def get_user_by_email_and_password(email, password_hash):
+        print("🔍 Veritabanına bağlanılıyor...")
+        conn = get_connection()
+        if not conn:
+            print("❌ Bağlantı başarısız.")
+            return None
+
+        try:
+            cursor = conn.cursor()
+            query = "SELECT id, fullName, email, role FROM users WHERE email = %s AND password_hash = %s"
+            cursor.execute(query, (email, password_hash))
+            result = cursor.fetchone()
+            if result:
+                print("✅ Kullanıcı bulundu:", result)
+                return User(*result)
+            else:
+                print("❌ Kullanıcı bulunamadı.")
+                return None
+        except Exception as e:
+            print("⚠️ Sorgulama hatası:", e)
+            return None
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
