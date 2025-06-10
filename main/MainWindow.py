@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 from main.profile_window import ProfileWindow
 from main.skill_window import SkillWindow  # ✅ Skill GUI import edildi
+from main.job_list_window import JobListWindow
+from main.job_post_window import JobPostWindow
+
 
 class MainWindow(tk.Toplevel):
     def __init__(self, parent, user):
@@ -37,9 +40,11 @@ class MainWindow(tk.Toplevel):
         SkillWindow(self.user)  # ✅ Kullanıcının yetenek GUI penceresini açar
 
     def post_job(self):
+        JobPostWindow(self.user)
         print("📢 Post job button clicked")  # Daha sonra eklenecek
 
     def find_jobs(self):
+        JobListWindow(self.user)
         print("🔍 Find job button clicked")  # Daha sonra eklenecek
 
     def logout(self):
