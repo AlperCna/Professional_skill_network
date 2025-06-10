@@ -1,10 +1,9 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk, messagebox
 from models.job_post import JobPost
 from models.application import Application
 
-
-class JobListWindow(Toplevel):
+class JobListWindow(tk.Toplevel):
     def __init__(self, user):
         super().__init__()
         self.user = user
@@ -12,9 +11,10 @@ class JobListWindow(Toplevel):
         self.geometry("800x600")
         self.configure(bg="#f2f2f2")
 
-        Label(self, text="Job Listings", font=("Segoe UI", 18, "bold"), bg="#f2f2f2", fg="#0D4D56").pack(pady=20)
+        tk.Label(self, text="Job Listings", font=("Segoe UI", 18, "bold"),
+                 bg="#f2f2f2", fg="#0D4D56").pack(pady=20)
 
-        # Treeview
+        # TreeView tablosu
         columns = ("Title", "Company", "Type", "Deadline")
         self.tree = ttk.Treeview(self, columns=columns, show="headings", height=15)
         for col in columns:
@@ -22,33 +22,59 @@ class JobListWindow(Toplevel):
             self.tree.column(col, width=180)
         self.tree.pack(pady=10)
 
-        # Başvuru Butonu
-        ttk.Button(self, text="📩 Apply to Selected", command=self.apply_to_selected).pack(pady=10)
+        # Seçim tetikleyicisi
+        self.tree.bind("<<TreeviewSelect>>", self.on_select)
 
         self.load_jobs()
 
     def load_jobs(self):
-        jobs = JobPost.get_all()
+        jobs = JobPost.get_all_for_listing()
         for job in jobs:
-            # company_id ile company_name yerine sadece ID gösteriyoruz, istersen CompanyProfile ekleyebilirim
-            self.tree.insert("", "end", iid=job.id, values=(job.title, f"Company {job.company_id}", job.job_type, job.deadline))
+            self.tree.insert(
+                "", "end", iid=job.id,
+                values=(job.title, job.company_name, job.job_type, job.deadline)
+            )
 
-    def apply_to_selected(self):
+    def on_select(self, event):
         selected = self.tree.selection()
         if not selected:
-            messagebox.showwarning("No Selection", "Please select a job to apply.")
             return
 
         job_id = int(selected[0])
-
-        # Daha önce başvurmuş mu kontrol et
-        if Application.has_applied(self.user.id, job_id):
-            messagebox.showinfo("Already Applied", "❗ You have already applied to this job.")
+        job = self.get_job_by_id(job_id)
+        if not job:
             return
 
-        try:
-            app = Application(user_id=self.user.id, job_id=job_id)
-            app.save()
-            messagebox.showinfo("Success", "✅ Application submitted!")
-        except Exception as e:
-            messagebox.showerror("Error", f"❌ Failed to apply:\n{e}")
+        # Detay penceresi
+        detail_win = tk.Toplevel(self)
+        detail_win.title("📄 Job Details")
+        detail_win.geometry("500x500")
+        detail_win.configure(bg="#ffffff")
+
+        tk.Label(detail_win, text=job.title, font=("Segoe UI", 16, "bold"), bg="#ffffff").pack(pady=10)
+        tk.Label(detail_win, text=f"Company: {job.company_name}", font=("Segoe UI", 12), bg="#ffffff").pack()
+        tk.Label(detail_win, text=f"Type: {job.job_type}", font=("Segoe UI", 12), bg="#ffffff").pack()
+        tk.Label(detail_win, text=f"Deadline: {job.deadline}", font=("Segoe UI", 12), bg="#ffffff").pack()
+
+        tk.Label(detail_win, text="Description", font=("Segoe UI", 12, "bold"), bg="#ffffff").pack(pady=(15, 0))
+        tk.Message(detail_win, text=job.description, width=450, bg="#f8f8f8").pack()
+
+        tk.Label(detail_win, text="Requirements", font=("Segoe UI", 12, "bold"), bg="#ffffff").pack(pady=(10, 0))
+        tk.Message(detail_win, text=job.requirements, width=450, bg="#f8f8f8").pack()
+
+        def apply():
+            if Application.has_applied(self.user.id, job.id):
+                messagebox.showinfo("Already Applied", "You have already applied.")
+            else:
+                Application(self.user.id, job.id).save()
+                messagebox.showinfo("Applied", "Your application has been submitted.")
+            detail_win.destroy()
+
+        ttk.Button(detail_win, text="📩 Apply for this job", command=apply).pack(pady=20)
+
+    def get_job_by_id(self, job_id):
+        all_jobs = JobPost.get_all()
+        for job in all_jobs:
+            if job.id == job_id:
+                return job
+        return None
