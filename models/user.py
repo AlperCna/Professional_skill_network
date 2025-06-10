@@ -30,12 +30,13 @@ class User:
 
         try:
             cursor = conn.cursor()
-            query = "SELECT id, fullName, email, role FROM users WHERE email = %s AND password_hash = %s"
+            query = "SELECT id, fullName, email, role FROM Users WHERE email = %s AND password_hash = %s"
             cursor.execute(query, (email, password_hash))
             result = cursor.fetchone()
             if result:
                 print("✅ Kullanıcı bulundu:", result)
-                return User(*result)
+                id, fullName, email, role = result
+                return User(fullName=fullName, email=email, password_hash=password_hash, role=role, id=id)
             else:
                 print("❌ Kullanıcı bulunamadı.")
                 return None
@@ -46,4 +47,3 @@ class User:
             if conn.is_connected():
                 cursor.close()
                 conn.close()
-

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
+from main.MainWindow import MainWindow
 
 from models.user import User  # Aynı şekilde kullanılabilir
 from main.register_window import RegisterWindow  # ✅ YENİ: RegisterWindow import edildi
@@ -62,7 +63,8 @@ class LoginWindow(tk.Tk):
         user = User.get_user_by_email_and_password(email, password)
 
         if user:
-            messagebox.showinfo("Login Result", f"✅ Hoş geldin, {user.fullName}!")
+            self.withdraw()  # login ekranını gizle
+            MainWindow(self, user)  # MainWindow'u aç
         else:
             messagebox.showerror("Login Result", "❌ Giriş başarısız. E-posta veya şifre hatalı.")
 
