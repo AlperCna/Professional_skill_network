@@ -28,6 +28,7 @@ class JobListWindow(tk.Toplevel):
         self.load_jobs()
 
     def load_jobs(self):
+        print("load_jobs çalışıyor")
         jobs = JobPost.get_all_for_listing()
         for job in jobs:
             self.tree.insert(
@@ -73,6 +74,7 @@ class JobListWindow(tk.Toplevel):
         ttk.Button(detail_win, text="📩 Apply for this job", command=apply).pack(pady=20)
 
     def get_job_by_id(self, job_id):
+        print("get_job_by_id çalışıyor")
         all_jobs = JobPost.get_all()
         for job in all_jobs:
             if job.id == job_id:

@@ -8,7 +8,7 @@ class RegisterWindow(tk.Toplevel):
         self.title("Register")
         self.geometry("900x600")
         self.configure(bg="#0D4D56")
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         # Ana çerçeve
         main_frame = tk.Frame(self, bg="#0D4D56")

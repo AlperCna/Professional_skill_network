@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+
+from main.connection_requests_window import ConnectionRequestsWindow
+from main.followed_list_window import FollowedListWindow
 from main.profile_window import ProfileWindow
 from main.company_profile_window import CompanyProfileWindow
 from main.skill_window import SkillWindow
@@ -24,7 +27,23 @@ class MainWindow(tk.Toplevel):
         ttk.Button(self, text="👤 View Profile", command=self.view_profile).pack(pady=10)
 
         # Yetenek yönetimi (tüm roller için aktif)
-        ttk.Button(self, text="🧠 Skills", command=self.view_skills).pack(pady=10)
+        if self.user.role == "individual":
+            ttk.Button(self, text="🧠 Skills", command=self.view_skills).pack(pady=10)
+
+        # Sosyal ağ butonu (tüm kullanıcılar için aktif)
+        ttk.Button(self, text="🌐 Discover People", command=self.open_social_window).pack(pady=10)
+
+        # Takip istekleri
+        ttk.Button(self, text="🔗 Connection Requests", command=self.view_connection_requests).pack(pady=10)
+
+        # Takip edenler
+        ttk.Button(self, text="👁️ Followers", command=self.view_followers).pack(pady=10)
+
+        # Bağlantılarım
+        ttk.Button(self, text="🤝 Connections", command=self.view_connections).pack(pady=10)
+
+        # Takip edilenler
+        ttk.Button(self, text="👥 Followed Users", command=self.view_followed_users).pack(pady=10)
 
         # Rol bazlı iş ilanı ve başvuru işlemleri
         if self.user.role == "company":
@@ -56,8 +75,26 @@ class MainWindow(tk.Toplevel):
     def view_applications(self):
         ApplicationListWindow(self.user)
 
+    def open_social_window(self):
+        from main.social_window import SocialWindow
+        SocialWindow(self.user.id)
+
+    def view_connection_requests(self):
+        ConnectionRequestsWindow(self.user.id)
+
     def view_incoming_applications(self):
         IncomingApplicationsWindow(self.user)
+
+    def view_followed_users(self):
+        FollowedListWindow(self.user.id)
+
+    def view_followers(self):
+        from main.follower_list_window import FollowerListWindow
+        FollowerListWindow(self.user.id)
+
+    def view_connections(self):
+        from main.connection_list_window import ConnectionListWindow
+        ConnectionListWindow(self.user.id)
 
     def logout(self):
         self.destroy()

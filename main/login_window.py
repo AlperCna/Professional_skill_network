@@ -12,7 +12,7 @@ class LoginWindow(tk.Tk):
         self.title("Login")
         self.configure(bg="#0D4D56")
         self.geometry("900x600")
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         # Ana çerçeve (frame)
         main_frame = tk.Frame(self, bg="#0D4D56")

@@ -21,6 +21,23 @@ class User:
         conn.close()  #baglantiyi kapiyoruz
 
     @staticmethod
+    def get_user_by_id(user_id):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, fullName, email, role FROM users WHERE id = %s", (user_id,))
+            result = cursor.fetchone()
+            if result:
+                return User(id=result[0], fullName=result[1], email=result[2], password_hash="", role=result[3])
+        except Exception as e:
+            print("⚠️ Kullanıcı alınamadı:", e)
+            return None
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    @staticmethod
     def get_user_by_email_and_password(email, password_hash):
         print("🔍 Veritabanına bağlanılıyor...")
         conn = get_connection()
