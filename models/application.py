@@ -32,12 +32,34 @@ class Application:
         conn = get_connection()
         try:
             cursor = conn.cursor()
-            query = "SELECT id FROM Application WHERE user_id = %s AND job_id = %s"
-            cursor.execute(query, (user_id, job_id))
+            cursor.execute("SELECT id FROM Application WHERE user_id = %s AND job_id = %s", (user_id, job_id))
             return cursor.fetchone() is not None
         except Exception as e:
-            print("⚠️ Başvuru sorgulama hatası:", e)
+            print("⚠️ Başvuru kontrol hatası:", e)
             return False
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    @staticmethod
+    def get_applications_to_company(company_id):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT a.id, u.fullName, j.title, a.status, a.applied_at
+                FROM Application a
+                JOIN JobPost j ON a.job_id = j.id
+                JOIN Users u ON a.user_id = u.id
+                WHERE j.company_id = %s
+                ORDER BY a.applied_at DESC
+            """
+            cursor.execute(query, (company_id,))
+            return cursor.fetchall()
+        except Exception as e:
+            print("⚠️ Şirket başvuruları listelenemedi:", e)
+            return []
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -49,9 +71,10 @@ class Application:
         try:
             cursor = conn.cursor()
             query = """
-                SELECT a.id, a.job_id, j.title, a.status, a.applied_at
+                SELECT j.title, c.company_name, a.status, a.applied_at
                 FROM Application a
                 JOIN JobPost j ON a.job_id = j.id
+                JOIN CompanyProfile c ON j.company_id = c.company_id
                 WHERE a.user_id = %s
                 ORDER BY a.applied_at DESC
             """
@@ -60,6 +83,20 @@ class Application:
         except Exception as e:
             print("⚠️ Kullanıcının başvuruları alınamadı:", e)
             return []
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    @staticmethod
+    def update_status(application_id, new_status):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE Application SET status = %s WHERE id = %s", (new_status, application_id))
+            conn.commit()
+        except Exception as e:
+            print("⚠️ Durum güncellenemedi:", e)
         finally:
             if conn.is_connected():
                 cursor.close()
