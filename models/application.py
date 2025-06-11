@@ -2,22 +2,24 @@ from db.db_config import get_connection
 from datetime import datetime
 
 class Application:
-    def __init__(self, user_id, job_id, status="pending", applied_at=None, id=None):
+    def __init__(self, user_id, job_id, status="pending", applied_at=None, id=None, cv_file=None):
         self.id = id
         self.user_id = user_id
         self.job_id = job_id
         self.status = status
         self.applied_at = applied_at or datetime.now()
+        self.cv_file = cv_file
 
     def save(self):
         conn = get_connection()
         try:
             cursor = conn.cursor()
             query = """
-                INSERT INTO Application (user_id, job_id, status)
-                VALUES (%s, %s, %s)
+                INSERT INTO Application (user_id, job_id, status, cv_file)
+                VALUES (%s, %s, %s, %s)
             """
-            cursor.execute(query, (self.user_id, self.job_id, self.status))
+            cursor.execute(query, (self.user_id, self.job_id, self.status, self.cv_file))
+
             conn.commit()
             self.id = cursor.lastrowid
         except Exception as e:

@@ -20,7 +20,30 @@ class ApplicationSkill:
                 conn.close()
 
     @staticmethod
+    def save_skill_for_application(application_id, skill_name):
+        """Skill adını kullanarak application_skills kaydı yapar"""
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM Skills WHERE skill_name = %s", (skill_name,))
+            result = cursor.fetchone()
+            if result:
+                skill_id = result[0]
+                cursor.execute(
+                    "INSERT INTO ApplicationSkills (application_id, skill_id) VALUES (%s, %s)",
+                    (application_id, skill_id)
+                )
+                conn.commit()
+        except Exception as e:
+            print("⚠️ Skill isme göre kaydedilemedi:", e)
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    @staticmethod
     def get_skills_for_application(application_id):
+        """Başvuru ID'sine göre başvuruya ait skill isimlerini getirir"""
         conn = get_connection()
         try:
             cursor = conn.cursor()

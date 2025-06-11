@@ -80,19 +80,27 @@ class ApplicationFormWindow(tk.Toplevel):
             messagebox.showerror("Error", "Please upload your CV.")
             return
 
-        # CV dosyasını 'uploads' klasörüne kopyalayalım
+        # CV'yi uploads klasörüne kaydet
         try:
             os.makedirs("uploads", exist_ok=True)
             filename = f"user_{self.user.id}_job_{self.job_id}.pdf"
-            dest = os.path.join("uploads", filename)
-            shutil.copyfile(self.cv_path_var.get(), dest)
+            dest_path = os.path.join("uploads", filename)
+            shutil.copyfile(self.cv_path_var.get(), dest_path)
         except Exception as e:
             messagebox.showerror("Error", f"CV upload failed:\n{e}")
             return
 
-        # Basit başvuru kaydı (detaylı skill + cv dosyası DB'ye ileride eklenebilir)
+        # 1. Başvuru nesnesini oluştur
         app = Application(user_id=self.user.id, job_id=self.job_id)
+        app.cv_file = dest_path  # <--- cv_file alanı eklendi
         app.save()
+
+        # 2. Seçilen skilleri application_skills tablosuna kaydet
+        from models.application_skill import ApplicationSkill
+        for skill_str in self.selected_skills:
+            # "Python (advanced)" -> "Python"
+            skill_name = skill_str.split(" (")[0]
+            ApplicationSkill.save_skill_for_application(app.id, skill_name)
 
         messagebox.showinfo("Success", "✅ Application submitted successfully.")
         self.destroy()
