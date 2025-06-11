@@ -1,18 +1,19 @@
 from db.db_config import get_connection
 
 class Post:
-    def __init__(self, user_id, content, id=None, created_at=None):
+    def __init__(self, user_id, content, image_path=None, id=None, created_at=None):
         self.id = id
         self.user_id = user_id
         self.content = content
+        self.image_path = image_path  # 👈 yeni alan
         self.created_at = created_at
 
     def save(self):
         conn = get_connection()
         try:
             cursor = conn.cursor()
-            query = "INSERT INTO Post (user_id, content) VALUES (%s, %s)"
-            cursor.execute(query, (self.user_id, self.content))
+            query = "INSERT INTO Post (user_id, content, image_path) VALUES (%s, %s, %s)"
+            cursor.execute(query, (self.user_id, self.content, self.image_path))
             conn.commit()
         except Exception as e:
             print(f"[❌] Post kaydedilemedi: {e}")
@@ -27,7 +28,7 @@ class Post:
         try:
             cursor = conn.cursor()
             query = """
-                SELECT p.id, u.fullName, p.content, p.created_at
+                SELECT p.id, u.fullName, p.content, p.created_at, p.image_path
                 FROM Post p
                 JOIN users u ON p.user_id = u.id
                 WHERE p.user_id = %s
