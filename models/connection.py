@@ -64,3 +64,25 @@ class Connection:
             if conn.is_connected():
                 cursor.close()
                 conn.close()
+
+    @staticmethod
+    def exists_between(user1_id, user2_id):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT 1 FROM Connection
+                WHERE 
+                    (user1_id = %s AND user2_id = %s) OR 
+                    (user1_id = %s AND user2_id = %s)
+                LIMIT 1
+            """
+            cursor.execute(query, (user1_id, user2_id, user2_id, user1_id))
+            return cursor.fetchone() is not None
+        except Exception as e:
+            print("⚠️ Connection kontrol hatası:", e)
+            return False
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
