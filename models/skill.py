@@ -40,6 +40,22 @@ class Skill:
         return skills
 
     @staticmethod
+    def get_id_by_name(skill_name):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM Skills WHERE skill_name = %s", (skill_name,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+        except Exception as e:
+            print("⚠️ Skill ID alınamadı:", e)
+            return None
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    @staticmethod
     def delete_by_id(skill_id):
         conn = get_connection()
         try:

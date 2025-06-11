@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+
+from models.application_skill import ApplicationSkill
+from models.skill import Skill
 from models.user_skill import UserSkill
 from models.application import Application
 import shutil
@@ -94,13 +97,13 @@ class ApplicationFormWindow(tk.Toplevel):
         app = Application(user_id=self.user.id, job_id=self.job_id)
         app.cv_file = dest_path  # <--- cv_file alanı eklendi
         app.save()
-
-        # 2. Seçilen skilleri application_skills tablosuna kaydet
-        from models.application_skill import ApplicationSkill
-        for skill_str in self.selected_skills:
-            # "Python (advanced)" -> "Python"
-            skill_name = skill_str.split(" (")[0]
-            ApplicationSkill.save_skill_for_application(app.id, skill_name)
+        # Seçilen skilleri application_skill tablosuna kaydet
+        for item in self.selected_skills:
+            skill_name = item.split(" (")[0]  # "Python (advanced)" → "Python"
+            skill_id = Skill.get_id_by_name(skill_name)
+            if skill_id:
+                app_skill = ApplicationSkill(application_id=app.id, skill_id=skill_id)
+                app_skill.save()
 
         messagebox.showinfo("Success", "✅ Application submitted successfully.")
         self.destroy()
