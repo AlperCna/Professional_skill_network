@@ -45,14 +45,14 @@ class MainWindow(tk.Toplevel):
         # Takip edilenler
         ttk.Button(self, text="👥 Followed Users", command=self.view_followed_users).pack(pady=10)
 
-        # Rol bazlı iş ilanı ve başvuru işlemleri
-        if self.user.role == "company":
-            ttk.Button(self, text="📢 Post a Job", command=self.post_job).pack(pady=10)
-            ttk.Button(self, text="📨 View Applications", command=self.view_incoming_applications).pack(pady=10)  # ✅ eklendi
-
-        elif self.user.role == "individual":
+        # My job applications
+        if self.user.role == "individual":
             ttk.Button(self, text="🔍 Find Jobs", command=self.find_jobs).pack(pady=10)
-            ttk.Button(self, text="📋 My Applications", command=self.view_applications).pack(pady=10)
+            ttk.Button(self, text="📄 My Applications", command=self.view_my_applications).pack(pady=10)
+
+        elif self.user.role == "company":
+            ttk.Button(self, text="📢 Post a Job", command=self.post_job).pack(pady=10)
+            ttk.Button(self, text="📨 View Applications", command=self.view_incoming_applications).pack(pady=10)
 
         # Çıkış
         ttk.Button(self, text="🚪 Logout", command=self.logout).pack(pady=20)
@@ -83,7 +83,12 @@ class MainWindow(tk.Toplevel):
         ConnectionRequestsWindow(self.user.id)
 
     def view_incoming_applications(self):
+        from main.incoming_applications_window import IncomingApplicationsWindow
         IncomingApplicationsWindow(self.user)
+
+    def view_my_applications(self):
+        from main.my_applications_window import MyApplicationsWindow
+        MyApplicationsWindow(user_id=self.user.id)
 
     def view_followed_users(self):
         FollowedListWindow(self.user.id)

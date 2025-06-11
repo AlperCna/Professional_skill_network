@@ -101,3 +101,43 @@ class Application:
             if conn.is_connected():
                 cursor.close()
                 conn.close()
+    @staticmethod
+    def get_application_detail(application_id):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT 
+                    a.id,
+                    u.fullName,
+                    u.email,
+                    j.title,
+                    a.applied_at,
+                    a.status,
+                    a.cv_file
+                FROM Application a
+                JOIN Users u ON a.user_id = u.id
+                JOIN JobPost j ON a.job_id = j.id
+                WHERE a.id = %s
+            """
+            cursor.execute(query, (application_id,))
+            result = cursor.fetchone()
+            if result:
+                return {
+                    "application_id": result[0],
+                    "candidate_name": result[1],
+                    "candidate_email": result[2],
+                    "job_title": result[3],
+                    "applied_at": result[4],
+                    "status": result[5],
+                    "cv_file": result[6]
+                }
+            return None
+        except Exception as e:
+            print("⚠️ Başvuru detayı alınamadı:", e)
+            return None
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+

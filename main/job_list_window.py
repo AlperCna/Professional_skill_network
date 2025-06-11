@@ -1,3 +1,4 @@
+from main.application_form_window import ApplicationFormWindow
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.job_post import JobPost
@@ -67,11 +68,11 @@ class JobListWindow(tk.Toplevel):
             if Application.has_applied(self.user.id, job.id):
                 messagebox.showinfo("Already Applied", "You have already applied.")
             else:
-                Application(self.user.id, job.id).save()
-                messagebox.showinfo("Applied", "Your application has been submitted.")
+                ApplicationFormWindow(self.user, job)
             detail_win.destroy()
 
-        ttk.Button(detail_win, text="📩 Apply for this job", command=apply).pack(pady=20)
+        ttk.Button(detail_win, text="📩 Apply for this job", command=lambda: ApplicationFormWindow(self.user, job.id)).pack(pady=20)
+
 
     def get_job_by_id(self, job_id):
         print("get_job_by_id çalışıyor")

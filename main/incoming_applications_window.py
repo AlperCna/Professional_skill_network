@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.application import Application
+from main.incoming_application_detail_window import IncomingApplicationDetailWindow
 
 class IncomingApplicationsWindow(tk.Toplevel):
     def __init__(self, user):
@@ -27,15 +28,28 @@ class IncomingApplicationsWindow(tk.Toplevel):
         btn_frame = tk.Frame(self, bg="#f4f4f4")
         btn_frame.pack(pady=10)
 
-        ttk.Button(btn_frame, text="✅ Accept", command=self.accept_application).grid(row=0, column=0, padx=10)
-        ttk.Button(btn_frame, text="❌ Reject", command=self.reject_application).grid(row=0, column=1, padx=10)
+        ttk.Button(btn_frame, text="📄 View Details", command=self.view_application).grid(row=0, column=0, padx=10)
+        ttk.Button(btn_frame, text="✅ Accept", command=self.accept_application).grid(row=0, column=1, padx=10)
+        ttk.Button(btn_frame, text="❌ Reject", command=self.reject_application).grid(row=0, column=2, padx=10)
 
     def load_data(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
         applications = Application.get_applications_to_company(self.user.id)
         for app in applications:
             app_id, fullName, job_title, status, applied_at = app
             self.tree.insert("", "end", iid=app_id,
                              values=(app_id, fullName, job_title, status, applied_at.strftime("%Y-%m-%d %H:%M")))
+
+    def view_application(self):
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showwarning("No Selection", "Please select an application to view.")
+            return
+
+        app_id = int(selected[0])
+        IncomingApplicationDetailWindow(application_id=app_id, refresh_callback=self.load_data)
 
     def accept_application(self):
         self._update_status("accepted")
@@ -52,8 +66,4 @@ class IncomingApplicationsWindow(tk.Toplevel):
         app_id = int(selected[0])
         Application.update_status(app_id, status)
         messagebox.showinfo("Updated", f"Application marked as '{status}'")
-
-        # Update status in treeview
-        current_values = list(self.tree.item(app_id)["values"])
-        current_values[3] = status  # status column index
-        self.tree.item(app_id, values=current_values)
+        self.load_data()
