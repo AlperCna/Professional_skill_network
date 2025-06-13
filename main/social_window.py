@@ -3,9 +3,9 @@ from tkinter import ttk, messagebox
 
 from models.connection import Connection
 from models.follow import Follow
-from models.user import User  # Kullanıcı bilgilerini getirmek için
+from models.user import User
 from db.db_config import get_connection
-
+from main.profile_window import ProfileWindow  # 👈 Profil görüntüleme
 
 class SocialWindow(tk.Toplevel):
     def __init__(self, current_user_id, parent=None):
@@ -28,14 +28,17 @@ class SocialWindow(tk.Toplevel):
         btn_frame = tk.Frame(self, bg="white")
         btn_frame.pack(pady=10)
 
-        self.btn_connect = ttk.Button(btn_frame, text="Bağlantı İsteği Gönder", command=self.send_connection_request)
+        self.btn_connect = ttk.Button(btn_frame, text="🔗 Bağlantı İsteği Gönder", command=self.send_connection_request)
         self.btn_connect.grid(row=0, column=0, padx=10)
 
-        self.btn_follow = ttk.Button(btn_frame, text="Takip Et", command=self.follow_user)
+        self.btn_follow = ttk.Button(btn_frame, text="👁️ Takip Et", command=self.follow_user)
         self.btn_follow.grid(row=0, column=1, padx=10)
 
-        self.btn_unfollow = ttk.Button(btn_frame, text="Takibi Bırak", command=self.unfollow_user)
+        self.btn_unfollow = ttk.Button(btn_frame, text="🚫 Takibi Bırak", command=self.unfollow_user)
         self.btn_unfollow.grid(row=0, column=2, padx=10)
+
+        self.btn_view_profile = ttk.Button(btn_frame, text="👤 View Profile", command=self.view_selected_profile)
+        self.btn_view_profile.grid(row=0, column=3, padx=10)
 
     def load_users(self):
         conn = get_connection()
@@ -64,11 +67,10 @@ class SocialWindow(tk.Toplevel):
             messagebox.showwarning("Seçim yok", "Lütfen bir kullanıcı seçin.")
             return
 
-        # Bağlantı kontrolü
         existing = Connection.get_connections(self.current_user_id)
         for sender, receiver, status in existing:
             if (sender == self.current_user_id and receiver == target_id) or (
-                    receiver == self.current_user_id and sender == target_id):
+                receiver == self.current_user_id and sender == target_id):
                 messagebox.showinfo("Zaten Bağlantı Var", "Bu kullanıcı ile zaten bağlantınız var.")
                 return
 
@@ -82,7 +84,6 @@ class SocialWindow(tk.Toplevel):
             messagebox.showwarning("Seçim yok", "Lütfen bir kullanıcı seçin.")
             return
 
-        # Takip kontrolü
         existing = Follow.get_followings(self.current_user_id)
         if target_id in existing:
             messagebox.showinfo("Zaten Takip Ediliyor", "Bu kullanıcıyı zaten takip ediyorsunuz.")
@@ -100,3 +101,24 @@ class SocialWindow(tk.Toplevel):
 
         Follow.unfollow(follower_id=self.current_user_id, followed_id=target_id, followed_type="user")
         messagebox.showinfo("Başarılı", "Takipten çıkıldı.")
+
+    def view_selected_profile(self):
+        target_id = self.get_selected_user_id()
+        if not target_id:
+            messagebox.showwarning("Seçim yok", "Lütfen bir kullanıcı seçin.")
+            return
+
+        from models.user import User
+        target = User.get_user_by_id(target_id)
+        if not target:
+            messagebox.showerror("Hata", "Kullanıcı bulunamadı.")
+            return
+
+        # Role'a göre sayfa yönlendirmesi
+        if target.role == "company":
+            from main.company_profile_window import CompanyProfileWindow
+            CompanyProfileWindow(target_id, readonly=True)
+        else:
+            from main.profile_window import ProfileWindow
+            ProfileWindow(user_id=target_id, readonly=True)
+

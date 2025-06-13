@@ -143,3 +143,28 @@ class Application:
                 cursor.close()
                 conn.close()
 
+    @staticmethod
+    def get_by_id(application_id):
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            query = "SELECT id, user_id, job_id, status, applied_at, cv_file FROM Application WHERE id = %s"
+            cursor.execute(query, (application_id,))
+            row = cursor.fetchone()
+            if row:
+                return Application(
+                    id=row[0],
+                    user_id=row[1],
+                    job_id=row[2],
+                    status=row[3],
+                    applied_at=row[4],
+                    cv_file=row[5]
+                )
+            return None
+        except Exception as e:
+            print("⚠️ get_by_id error:", e)
+            return None
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
