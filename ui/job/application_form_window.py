@@ -85,9 +85,9 @@ class ApplicationFormWindow(tk.Toplevel):
 
         # CV'yi uploads klasörüne kaydet
         try:
-            os.makedirs("uploads", exist_ok=True)
+            os.makedirs("../main/uploads", exist_ok=True)
             filename = f"user_{self.user.id}_job_{self.job_id}.pdf"
-            dest_path = os.path.join("uploads", filename)
+            dest_path = os.path.join("../main/uploads", filename)
             shutil.copyfile(self.cv_path_var.get(), dest_path)
         except Exception as e:
             messagebox.showerror("Error", f"CV upload failed:\n{e}")

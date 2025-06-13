@@ -8,11 +8,11 @@ from models.post import Post
 from models.post_like import PostLike
 from models.comment import Comment
 
-from ui.main.connection_requests_window import ConnectionRequestsWindow
-from ui.main.followed_list_window import FollowedListWindow
+from ui.social.connection_requests_window import ConnectionRequestsWindow
+from ui.social.followed_list_window import FollowedListWindow
 from ui.profile.profile_window import ProfileWindow
 from ui.profile.company_profile_window import CompanyProfileWindow
-from ui.main.skill_window import SkillWindow
+from ui.skill.skill_window import SkillWindow
 from ui.job.job_list_window import JobListWindow
 from ui.job.job_post_window import JobPostWindow
 from ui.job.application_list_window import ApplicationListWindow
@@ -104,9 +104,9 @@ class MainWindow(tk.Toplevel):
         image_path_in_uploads = None
         if self.selected_image_path:
             try:
-                os.makedirs("../main/uploads", exist_ok=True)
+                os.makedirs("uploads", exist_ok=True)
                 filename = f"user_{self.user.id}_{os.path.basename(self.selected_image_path)}"
-                dest_path = os.path.join("../main/uploads", filename)
+                dest_path = os.path.join("uploads", filename)
                 shutil.copyfile(self.selected_image_path, dest_path)
                 image_path_in_uploads = dest_path
             except Exception as e:
@@ -190,7 +190,7 @@ class MainWindow(tk.Toplevel):
         ApplicationListWindow(self.user)
 
     def open_social_window(self):
-        from ui.main.social_window import SocialWindow
+        from ui.social.social_window import SocialWindow
         SocialWindow(self.user.id)
 
     def view_connection_requests(self):
@@ -207,15 +207,15 @@ class MainWindow(tk.Toplevel):
         FollowedListWindow(self.user.id)
 
     def view_followers(self):
-        from ui.main.follower_list_window import FollowerListWindow
+        from ui.social.follower_list_window import FollowerListWindow
         FollowerListWindow(self.user.id)
 
     def view_connections(self):
-        from ui.main.connection_list_window import ConnectionListWindow
+        from ui.social.connection_list_window import ConnectionListWindow
         ConnectionListWindow(self.user)
 
     def open_chat_window(self):
-        from ui.main.chat_window import ChatWindow
+        from ui.social.chat_window import ChatWindow
         ChatWindow(self.user)
 
     def logout(self):

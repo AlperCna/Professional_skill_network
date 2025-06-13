@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.application import Application
-from ui.main.incoming_application_detail_window import IncomingApplicationDetailWindow
+from ui.job.incoming_application_detail_window import IncomingApplicationDetailWindow
 from ui.profile.profile_window import ProfileWindow  # 👈 Profil penceresini çağırmak için
 
 class IncomingApplicationsWindow(tk.Toplevel):
