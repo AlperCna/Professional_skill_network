@@ -8,15 +8,15 @@ from models.post import Post
 from models.post_like import PostLike
 from models.comment import Comment
 
-from main.connection_requests_window import ConnectionRequestsWindow
-from main.followed_list_window import FollowedListWindow
-from main.profile_window import ProfileWindow
-from main.company_profile_window import CompanyProfileWindow
-from main.skill_window import SkillWindow
-from main.job_list_window import JobListWindow
-from main.job_post_window import JobPostWindow
-from main.application_list_window import ApplicationListWindow
-from main.incoming_applications_window import IncomingApplicationsWindow
+from ui.main.connection_requests_window import ConnectionRequestsWindow
+from ui.main.followed_list_window import FollowedListWindow
+from ui.profile.profile_window import ProfileWindow
+from ui.profile.company_profile_window import CompanyProfileWindow
+from ui.main.skill_window import SkillWindow
+from ui.job.job_list_window import JobListWindow
+from ui.job.job_post_window import JobPostWindow
+from ui.job.application_list_window import ApplicationListWindow
+from ui.job.incoming_applications_window import IncomingApplicationsWindow
 
 
 class MainWindow(tk.Toplevel):
@@ -104,9 +104,9 @@ class MainWindow(tk.Toplevel):
         image_path_in_uploads = None
         if self.selected_image_path:
             try:
-                os.makedirs("uploads", exist_ok=True)
+                os.makedirs("../main/uploads", exist_ok=True)
                 filename = f"user_{self.user.id}_{os.path.basename(self.selected_image_path)}"
-                dest_path = os.path.join("uploads", filename)
+                dest_path = os.path.join("../main/uploads", filename)
                 shutil.copyfile(self.selected_image_path, dest_path)
                 image_path_in_uploads = dest_path
             except Exception as e:
@@ -190,7 +190,7 @@ class MainWindow(tk.Toplevel):
         ApplicationListWindow(self.user)
 
     def open_social_window(self):
-        from main.social_window import SocialWindow
+        from ui.main.social_window import SocialWindow
         SocialWindow(self.user.id)
 
     def view_connection_requests(self):
@@ -200,22 +200,22 @@ class MainWindow(tk.Toplevel):
         IncomingApplicationsWindow(self.user)
 
     def view_my_applications(self):
-        from main.my_applications_window import MyApplicationsWindow
+        from ui.job.my_applications_window import MyApplicationsWindow
         MyApplicationsWindow(user_id=self.user.id)
 
     def view_followed_users(self):
         FollowedListWindow(self.user.id)
 
     def view_followers(self):
-        from main.follower_list_window import FollowerListWindow
+        from ui.main.follower_list_window import FollowerListWindow
         FollowerListWindow(self.user.id)
 
     def view_connections(self):
-        from main.connection_list_window import ConnectionListWindow
+        from ui.main.connection_list_window import ConnectionListWindow
         ConnectionListWindow(self.user)
 
     def open_chat_window(self):
-        from main.chat_window import ChatWindow
+        from ui.main.chat_window import ChatWindow
         ChatWindow(self.user)
 
     def logout(self):

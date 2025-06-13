@@ -2,9 +2,9 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-from main.MainWindow import MainWindow
+from ui.main1.MainWindow import MainWindow
 from models.user import User
-from main.register_window import RegisterWindow
+from ui.main1.register_window import RegisterWindow
 
 IMAGE_PATH = r"C:\Users\ogsar\Downloads\496c22bea2c410b12d1bde2918a1088c.jpg"
 

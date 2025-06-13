@@ -93,7 +93,7 @@ class CompanyProfileWindow(tk.Toplevel):
 
         try:
             profile.save()
-            messagebox.showinfo("Success", "✅ Company profile saved successfully!")
+            messagebox.showinfo("Success", "✅ Company main1 saved successfully!")
             self.destroy()
         except Exception as e:
             messagebox.showerror("Error", f"❌ Failed to save:\n{e}")

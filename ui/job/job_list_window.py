@@ -1,4 +1,4 @@
-from main.application_form_window import ApplicationFormWindow
+from ui.main.application_form_window import ApplicationFormWindow
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.job_post import JobPost

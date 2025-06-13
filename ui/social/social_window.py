@@ -3,9 +3,8 @@ from tkinter import ttk, messagebox
 
 from models.connection import Connection
 from models.follow import Follow
-from models.user import User
 from db.db_config import get_connection
-from main.profile_window import ProfileWindow  # 👈 Profil görüntüleme
+
 
 class SocialWindow(tk.Toplevel):
     def __init__(self, current_user_id, parent=None):
@@ -116,9 +115,9 @@ class SocialWindow(tk.Toplevel):
 
         # Role'a göre sayfa yönlendirmesi
         if target.role == "company":
-            from main.company_profile_window import CompanyProfileWindow
+            from ui.profile.company_profile_window import CompanyProfileWindow
             CompanyProfileWindow(target_id, readonly=True)
         else:
-            from main.profile_window import ProfileWindow
+            from ui.profile.profile_window import ProfileWindow
             ProfileWindow(user_id=target_id, readonly=True)
 

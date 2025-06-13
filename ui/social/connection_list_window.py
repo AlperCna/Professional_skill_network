@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from models.connection import Connection
 from models.user import User
-from main.endorse_skill_window import EndorseSkillWindow  # Endorse penceresi import edilir
+from ui.main.endorse_skill_window import EndorseSkillWindow  # Endorse penceresi import edilir
 
 class ConnectionListWindow(tk.Toplevel):
     def __init__(self, current_user):
