@@ -1,5 +1,7 @@
+import os
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
+from PIL import Image, ImageTk
 from models.user import User
 from models.user_profile import UserProfile
 from models.experience import Experience
@@ -7,12 +9,11 @@ from models.education import Education
 from tkcalendar import DateEntry
 from datetime import datetime
 
-
 class ProfileWindow(tk.Toplevel):
     def __init__(self, user_id, readonly=False):
         super().__init__()
         self.title("👤 User Profile")
-        self.geometry("750x650")
+        self.geometry("750x750")
         self.configure(bg="#f1f3f5")
         self.user_id = user_id
         self.readonly = readonly
@@ -20,12 +21,21 @@ class ProfileWindow(tk.Toplevel):
         self.user = User.get_user_by_id(user_id)
         self.profile = UserProfile.get_by_user_id(user_id)
 
-        # ÜST BİLGİ BÖLÜMÜ
+        # Profil resmi
+        self.image_path = self.profile.profile_picture_path if self.profile else None
+        self.image_label = tk.Label(self, bg="#f1f3f5")
+        self.image_label.pack(pady=(15, 5))
+        self.load_profile_picture()
+
+        if not self.readonly:
+            ttk.Button(self, text="📁 Upload Photo", command=self.upload_profile_picture).pack(pady=(0, 10))
+
+        # Başlık bilgileri
         header = tk.Frame(self, bg="#0D4D56")
         header.pack(fill="x")
 
         tk.Label(header, text=self.user.fullName, font=("Segoe UI", 18, "bold"),
-                 bg="#0D4D56", fg="white").pack(pady=(15, 0))
+                 bg="#0D4D56", fg="white").pack(pady=(10, 0))
 
         if self.profile and self.profile.headline:
             tk.Label(header, text=self.profile.headline, font=("Segoe UI", 12),
@@ -35,13 +45,29 @@ class ProfileWindow(tk.Toplevel):
             tk.Label(header, text=self.profile.location, font=("Segoe UI", 10),
                      bg="#0D4D56", fg="#ced4da").pack()
 
-        # SEKMELER
+        # Sekmeler
         notebook = ttk.Notebook(self)
         notebook.pack(fill="both", expand=True, padx=20, pady=15)
 
         self.init_info_tab(notebook)
         self.init_experience_tab(notebook)
         self.init_education_tab(notebook)
+
+    def load_profile_picture(self):
+        if self.image_path and os.path.exists(self.image_path):
+            image = Image.open(self.image_path)
+            image = image.resize((100, 100))
+            image = ImageTk.PhotoImage(image)
+            self.image_label.config(image=image)
+            self.image_label.image = image
+        else:
+            self.image_label.config(text="No Image", width=15, height=7, bg="#ccc", font=("Segoe UI", 10, "italic"))
+
+    def upload_profile_picture(self):
+        path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
+        if path:
+            self.image_path = path
+            self.load_profile_picture()
 
     def init_info_tab(self, notebook):
         tab = ttk.Frame(notebook)
@@ -63,8 +89,9 @@ class ProfileWindow(tk.Toplevel):
         for label, var in self.fields.items():
             tk.Label(form_frame, text=label, font=("Segoe UI", 10, "bold"), bg="white").pack(anchor="w", pady=(10, 0))
             if label == "Gender":
+                state = "disabled" if self.readonly else "readonly"
                 gender_combo = ttk.Combobox(form_frame, textvariable=var, values=["M", "F"],
-                                            state="readonly" if self.readonly else "normal")
+                                            state=state if self.readonly else "normal")
                 gender_combo.pack(fill="x")
             else:
                 state = "readonly" if self.readonly else "normal"
@@ -103,7 +130,6 @@ class ProfileWindow(tk.Toplevel):
             self.exp_tree.heading(col, text=col)
             self.exp_tree.column(col, width=150)
         self.exp_tree.pack(fill="both", expand=True, padx=10, pady=(0, 10))
-
         self.load_experiences()
 
     def add_experience(self):
@@ -150,11 +176,9 @@ class ProfileWindow(tk.Toplevel):
             tk.Entry(top_frame, textvariable=self.edu_degree).grid(row=1, column=1)
             current_year = datetime.now().year
             year_options = [str(y) for y in range(1980, current_year + 1)]
+            ttk.Combobox(top_frame, textvariable=self.edu_start, values=year_options, state="readonly").grid(row=0, column=3)
+            ttk.Combobox(top_frame, textvariable=self.edu_end, values=year_options, state="readonly").grid(row=1, column=3)
 
-            ttk.Combobox(top_frame, textvariable=self.edu_start, values=year_options, state="readonly").grid(row=0,
-                                                                                                             column=3)
-            ttk.Combobox(top_frame, textvariable=self.edu_end, values=year_options, state="readonly").grid(row=1,
-                                                                                                           column=3)
             ttk.Button(top_frame, text="➕ Add Education", command=self.add_education).grid(row=2, column=0, columnspan=4, pady=10)
 
         self.edu_tree = ttk.Treeview(tab, columns=("School", "Degree", "Start", "End"), show="headings")
@@ -162,7 +186,6 @@ class ProfileWindow(tk.Toplevel):
             self.edu_tree.heading(col, text=col)
             self.edu_tree.column(col, width=150)
         self.edu_tree.pack(fill="both", expand=True, padx=10, pady=(0, 10))
-
         self.load_educations()
 
     def add_education(self):
@@ -197,7 +220,8 @@ class ProfileWindow(tk.Toplevel):
             birthdate=self.fields["Birthdate"].get(),
             gender=self.fields["Gender"].get(),
             website=self.fields["Website"].get(),
-            verified=False
+            verified=False,
+            profile_picture_path=self.image_path  # 🔄 Profil resmi yolu
         )
         profile.save()
         messagebox.showinfo("Success", "✅ Profile saved successfully!")
